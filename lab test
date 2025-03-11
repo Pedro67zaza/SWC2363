@@ -1,0 +1,152 @@
+<?php
+//this will start the session
+session_start();
+
+//this will set the destinations array if it has not been set
+if(!isset($_SESSION['destinations'])) {
+    $_SESSION['destinations'] = [
+        "Paris" => 600,
+        "London" => 700,
+        "Riyadh" => 300,
+        "Jakarta" => 100,
+        "Seoul" => 400
+    ];
+}
+
+//this function will calculate the total cost of the vacation
+/*it will take in the destinations array, the destination choosen, number of passengers,
+number of days, and the type of room*/
+function calculateTotal($destinations, $destination, $passengers, $days, $type) {
+    $base = $destinations[$destination];//this will access the the ticket price of the destination
+    $total = $base * $passengers; //multiply the destination price with its passengers
+    $dailyCost = 50 * $days; //daily expenses will be 50, multiply it with number of days 
+    $total += $dailyCost; //add the daily expenses to the total
+
+    //figure out which room type was choosen
+    if($type == "Budget") {
+        $accomodationCost = 50 * $days; //if budget was selected, accomodation cost will be 50 per day
+        $total += $accomodationCost; //add the accomadation cost to the total
+    }
+    elseif($type == "Standard") {
+        $accomodationCost = 100 * $days; //if standard was selected, accomodation cost will be 100 per day
+        $total += $accomodationCost; //add the accomadation cost to the total
+    }
+    else{
+        $accomodationCost = 200 * $days; //if luxury was selected, accomodation cost will be 200 per day
+        $total += $accomodationCost; //add the accomadation cost to the total
+    }
+    
+    //check if the passengers are more than 4, if so, give a 10% discount
+    if($passengers > 4) {
+        $discount = $total * 0.1;
+        $total -= $discount;
+    }
+
+    return $total;
+}
+
+$total = 0;
+
+//check if the form was submitted
+if($_SERVER["REQUEST_METHOD"] == "POST") {
+    //store the value inside each respective variable
+    $name = htmlspecialchars($_POST['name']);
+    $destination = ($_POST['destination']);
+    $passengers = htmlspecialchars($_POST['passengers']);
+    $days = htmlspecialchars($_POST['days']);
+    $type = $_POST['type'];
+
+    //call the function and store it inside total
+    $total = calculateTotal($_SESSION['destinations'], $destination, $passengers, $days, $type);
+}
+?>
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Vacation Budget Calculator</title>
+
+        <style>
+            table th, td {
+                border: 1px solid black;
+                padding: 5px;
+                background-color: white;
+            }
+            img {
+                max-height: 90px;
+                width: auto;
+                padding: 5px;
+            }
+            body {
+                background-color: blanchedalmond;
+            }
+            h1 {
+                font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+            }
+        </style>
+    </head>
+<body>
+        <img src="airline_logo.jpg" alt="Airline Logo">
+        <h1>Vacation Budget Calculator</h1>
+        <form method="post">
+            <label for="name">Name:</label>
+            <input type="text" name="name" id="name" required>
+            <br><br>
+
+
+            <label for="destination">Pick a Destination:</label>
+            <select name="destination" id="destination" required>
+                <option value="Paris">Paris</option>
+                <option value="London">London</option>
+                <option value="Riyadh">Riyadh</option>
+                <option value="Jakarta">Jakarta</option>
+                <option value="Seoul">Seoul</option>
+            </select>
+            <br><br>
+
+            <label for="passengers">Number of passengers:</label>
+            <input type="number" name="passengers" id="passengers" required>
+            <br><br>
+
+            <label for="days">Number of days:</label>
+            <input type="number" name="days" id="days" required>
+            <br><br>
+
+            <label for="type">Type:</label>
+            <select name="type" id="type" required>
+                <option value="Budget">Budget</option>
+                <option value="Standard">Standard</option>
+                <option value="Luxury">Luxury</option>
+            </select>
+            <br><br>
+
+            <input type="submit" value="Enter">
+        </form>
+
+        <?php if($total > 0 && is_numeric($total)) /*validate the total*/{ ?>
+            <table>
+                <tr>
+                    <th>Traveler Name</th>
+                    <th>Destination</th>
+                    <th>No. of Travelers</th>
+                    <th>Days</th>
+                    <th>Accomodation</th>
+                    <th>Total Cost</th>
+                </tr>
+                <?php
+                echo 
+                "<tr>
+                    <td>$name</td>
+                    <td>$destination</td>
+                    <td>$passengers</td>
+                    <td>$days</td>
+                    <td>$type</td>
+                    <td>$$total</td>
+                </tr>";
+                ?>
+            </table>
+
+       <?php } ?>
+</body>
+</html>
