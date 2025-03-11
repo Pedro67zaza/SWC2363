@@ -17,8 +17,15 @@ if(!isset($_SESSION['destinations'])) {
 /*it will take in the destinations array, the destination choosen, number of passengers,
 number of days, and the type of room*/
 function calculateTotal($destinations, $destination, $passengers, $days, $type) {
+    $total = 0;
     $base = $destinations[$destination];//this will access the the ticket price of the destination
-    $total = $base * $passengers; //multiply the destination price with its passengers
+
+    //this for loop will iterate based on the number of passengers
+    //i starts with 1 because the base already contains one passenger
+    for( $i = 1; $i < $passengers; $i++) {
+        $total = $base;
+        $total += $destinations[$destination];
+    }
     $dailyCost = 50 * $days; //daily expenses will be 50, multiply it with number of days 
     $total += $dailyCost; //add the daily expenses to the total
 
